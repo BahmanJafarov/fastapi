@@ -27,23 +27,6 @@ while True:
         print("Connection to database failed")
         print("Error: ", error)
         time.sleep(2)
-
-
-my_posts = [
-    {"title": "title of post 1", "content": "content of post 1", "id": 1},
-    {"title": "title of post 2", "content": "content of post 2", "id": 2},
-]
-
-def find_post(id):
-    for p in my_posts:
-        if p['id'] == id:
-            return p
-        
-
-def find_index_post(id):
-    for i, p in enumerate(my_posts):
-        if p['id'] == id:
-            return i
         
 
 @app.get("/")
@@ -53,6 +36,7 @@ def root():
 
 @app.get("/posts")
 def get_posts():
+
     cursor.execute("""SELECT * FROM posts""")
     posts = cursor.fetchall()
     return {"data": posts}
@@ -60,6 +44,7 @@ def get_posts():
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
+
     cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """, 
                    (post.title, post.content, post.published))
     new_post = cursor.fetchone()
@@ -70,6 +55,7 @@ def create_posts(post: Post):
 
 @app.get("/posts/{id}")
 def get_post(id: int):
+
     cursor.execute("""SELECT * FROM posts WHERE id = %s""", (str(id)))
     post = cursor.fetchone()
 
@@ -81,12 +67,13 @@ def get_post(id: int):
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
+
     cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *""", (str(id)))
     deleted_post = cursor.fetchone()
 
     conn.commit()
 
-    if delete_post == None:
+    if deleted_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'post with id: {id} does not exist')
 
