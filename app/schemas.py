@@ -30,6 +30,10 @@ class Post(PostBase):
     owner_id: int
     owner: UserOut
 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
 
 class Token(BaseModel):
     access_token: str
